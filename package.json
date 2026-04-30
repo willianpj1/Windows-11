@@ -1,12 +1,49 @@
 {
   "name": "windows-11",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "1.0.0",
+  "description": "projeto do willian",
+  "homepage": "https://github.com/willianpj1/Windows-11#readme",
+  "bugs": {
+    "url": "https://github.com/willianpj1/Windows-11/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willianpj1/Windows-11.git"
+  },
+  "license": "MIT",
+  "author": "Willian pereira jeronimo",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "bootstrap": "^5.3.8",
+    "datatables.net-bs5": "^2.3.8",
+    "datatables.net-responsive-bs5": "^3.0.8",
+    "datatables.net-staterestore-bs5": "^1.4.3",
+    "detect-libc": "^2.1.2",
+    "fdir": "^6.5.0",
+    "flatpickr": "^4.6.13",
+    "jquery": "^4.0.0",
+    "lightningcss": "^1.32.0",
+    "lightningcss-win32-x64-msvc": "^1.32.0",
+    "nanoid": "^3.3.11",
+    "picocolors": "^1.1.1",
+    "picomatch": "^4.0.4",
+    "postcss": "^8.5.12",
+    "rolldown": "^1.0.0-rc.17",
+    "select2": "^4.1.0-rc.0",
+    "select2-bootstrap-5-theme": "^1.3.0",
+    "source-map-js": "^1.2.1",
+    "sweetalert2": "^11.26.24",
+    "tinyglobby": "^0.2.16"
   },
   "devDependencies": {
     "vite": "^8.0.10"
