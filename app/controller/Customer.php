@@ -62,6 +62,7 @@ final class Customer extends Base
             return $this->json($response, ['status' => false, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
+
     public function update($request, $response)
     {
         $form = $request->getParsedBody();
@@ -87,6 +88,7 @@ final class Customer extends Base
             return $this->json($response, ['status' => false, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
+
     public function delete($request, $response)
     {
         $form = $request->getParsedBody();
@@ -104,6 +106,7 @@ final class Customer extends Base
             return $this->json($response, ['status' => false, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
+    
     public function listingdata($request, $response)
     {
         $form = $request->getParsedBody();
