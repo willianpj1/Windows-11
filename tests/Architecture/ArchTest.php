@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 arch('todos os arquivos usam strict types')
-    ->expect('App')
+    ->expect('app')
     ->toUseStrictTypes();
 
 arch('sem debug no código de produção')
-    ->expect('App')
+    ->expect('app')
     ->not->toUse(['var_dump', 'dd', 'dump', 'die']);
 
 arch('controllers não acessam banco direto')
@@ -16,7 +16,7 @@ arch('controllers não acessam banco direto')
 
 #Nenhuma classe deve usar funções perigosas
 arch('sem funções perigosas no código')
-    ->expect('App')
+    ->expect('app')
     ->not->toUse([
         'eval',
         'exec',
