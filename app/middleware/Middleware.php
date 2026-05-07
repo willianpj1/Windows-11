@@ -6,21 +6,20 @@ namespace app\middleware;
 
 class Middleware
 {
-    #metodo de autenticação via token de rotas post
-    public static function api(){
-        $middleware = function ($resquest, $handle){
-
-        };
+    #Metodo de autenticação via token de rota POST.
+    public static function api()
+    {
+        $middleware = function ($request, $handler) {};
         return $middleware;
-
     }
-    #metodo de autenticação das rotas get
-    public static function web(){
-        $middleware = function ($resquest, $handle){
-
-        };
+    #Metodo de autenticação das rotas GET
+    public static function web()
+    {
+        #Verifica se o usuário está autenticado.
+        if (true) {
+            #redireciona para a página de login.
+        }
+        $middleware = function ($request, $handler) {};
         return $middleware;
-
     }
-
 }
