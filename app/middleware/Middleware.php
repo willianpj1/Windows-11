@@ -10,58 +10,90 @@ use Slim\Psr7\Response;
 
 class Middleware
 {
-    #Metodo de autenticação via token de rota POST.
+    // Rotas que não precisam de autenticação (além do próprio /login)
+    private const PUBLIC_PATHS = [
+        '/login',
+        '/cadastro',
+        '/auth/google',
+        '/auth/google/callback',
+        '/logout',
+    ];
+
+    /**
+     * Middleware para rotas de API (POST que retornam JSON).
+     * Devolve 401 JSON se não autenticado.
+     */
     public static function api()
     {
-        $middleware = function ($request, $handler) {
-            #Lê o JWT gravado pelo método auth() no cookie httponly do navegador.
-            $token = $_COOKIE['auth_token'] ?? null;
-            try {
-                #Curto-circuito: exige cookie presente e flag de sessão antes do decode.
-                if (!$token || empty($_SESSION['user']['logado'])) throw new \RuntimeException();
-                #Valida assinatura HS256 e expiração do payload contra a SECRET_KEY.
-                JWT::decode($token, new Key(SECRET_KEY, 'HS256'));
-            } catch (\Throwable $e) {
-                #Qualquer falha cai aqui: cookie ausente, expirado ou adulterado.
+        return function ($request, $handler) {
+            if (!self::isAuthenticated()) {
                 $response = new Response();
-                #Resposta JSON padronizada no mesmo contrato usado pelo Login::auth.
-                $response->getBody()->write(json_encode(['status' => false, 'msg' => 'Sessão expirada ou não autenticada.', 'id' => 0]));
-                #Status 401 é o código semântico correto para credencial inválida.
-                return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+                $response->getBody()->write(json_encode([
+                    'status'  => false,
+                    'message' => 'Sessão expirada ou não autenticada.',
+                    'id'      => 0,
+                ]));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(401);
             }
-            #Credenciais íntegras: encaminha a requisição ao próximo handler do Slim.
             return $handler->handle($request);
         };
-        return $middleware;
     }
-    #Metodo de autenticação das rotas GET
+
+    /**
+     * Middleware para rotas web (GET que retornam HTML).
+     * Redireciona para /login se não autenticado,
+     * ou para /home se já autenticado e tentar acessar /login.
+     */
     public static function web()
     {
-        $middleware = function ($request, $handler) {
-            #Lê o JWT gravado pelo método auth() no cookie httponly do navegador.
-            $token = $_COOKIE['auth_token'] ?? null;
-            #Verifica se a rota atual é a própria página de login para inverter a regra.
-            $isLogin = $request->getUri()->getPath() === '/login';
-            #Sinalizador que indica se o usuário possui sessão e token válidos no momento.
-            $auth = false;
-            try {
-                #Curto-circuito: só faz decode se cookie e flag de sessão estiverem presentes.
-                if ($token && !empty($_SESSION['user']['logado'])) {
-                    #Valida assinatura HS256 e expiração do payload contra a SECRET_KEY.
-                    JWT::decode($token, new Key(SECRET_KEY, 'HS256'));
-                    #Token íntegro e sessão ativa: marca o usuário como autenticado.
-                    $auth = true;
-                }
-            } catch (\Throwable $e) {
-                #Qualquer falha é silenciosamente tratada como usuário não autenticado.
+        return function ($request, $handler) {
+            $path    = $request->getUri()->getPath();
+            $isLogin = $path === '/login';
+            $isPublic = in_array($path, self::PUBLIC_PATHS, true);
+            $auth    = self::isAuthenticated();
+
+            // Autenticado tentando ver o login → vai para home
+            if ($isLogin && $auth) {
+                return (new Response())
+                    ->withHeader('Location', '/home')
+                    ->withStatus(302);
             }
-            #Já autenticado tentando ver a tela de login → manda direto para a home.
-            if ($isLogin && $auth) return (new Response())->withHeader('Location', '/home')->withStatus(302);
-            #Não autenticado tentando acessar rota protegida → manda para a tela de login.
-            if (!$isLogin && !$auth) return (new Response())->withHeader('Location', '/login')->withStatus(302);
-            #Caso permitido: autenticado em rota privada ou anônimo na própria /login.
+
+            // Não autenticado em rota privada → vai para login
+            if (!$isPublic && !$auth) {
+                return (new Response())
+                    ->withHeader('Location', '/login')
+                    ->withStatus(302);
+            }
+
             return $handler->handle($request);
         };
-        return $middleware;
+    }
+
+    /**
+     * Verifica se o usuário atual está autenticado:
+     * cookie JWT válido + flag de sessão presentes.
+     */
+    public static function isAuthenticated(): bool
+    {
+        // Garante sessão iniciada
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $token = $_COOKIE['auth_token'] ?? null;
+
+        if (!$token || empty($_SESSION['user']['logado'])) {
+            return false;
+        }
+
+        try {
+            JWT::decode($token, new Key(SECRET_KEY, 'HS256'));
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }
