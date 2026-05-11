@@ -27,7 +27,7 @@ final class Version20260505211424 extends AbstractMigration
         $table->addColumn('cpf',           'text',     ['notnull' => true]);
         $table->addColumn('email',         'text',     ['notnull' => true, 'default' => '']);
         $table->addColumn('google_id',     'text',     ['notnull' => false, 'default' => null]);
-        $table->addColumn('ativo',         'boolean',  ['default' => true]);
+        $table->addColumn('ativo',         'boolean',  ['default' => false]);
         $table->addColumn('administrador', 'boolean',  ['default' => false]);
         $table->addColumn('criado_em',     'datetime', ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('atualizado_em', 'datetime', ['default' => 'CURRENT_TIMESTAMP']);

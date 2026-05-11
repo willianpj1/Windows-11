@@ -86,8 +86,6 @@ final class Register extends Base
                 'senha'         => password_hash($senha, PASSWORD_BCRYPT, ['cost' => 12]),
                 'google_id'     => null,
                 'salario'       => 0,
-                'ativo'         => true,
-                
             ]);
 
             return $this->json($response, [
