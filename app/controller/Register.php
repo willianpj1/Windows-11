@@ -39,8 +39,8 @@ final class Register extends Base
         $cpf       = preg_replace('/\D/', '', $form['cpf']);
         $rg        = preg_replace('/\D/', '', $form['rg']);
         $senha     = $form['senha'];
-        
-           
+
+
 
         // ── 2. Unicidade de e-mail e CPF ──────────────────────────────────────
         try {
@@ -76,11 +76,10 @@ final class Register extends Base
 
         // ── 3. Inserção ───────────────────────────────────────────────────────
         try {
-            
+
             \app\database\DB::connection()->insert('users', [
                 'nome'          => $nome,
                 'sobrenome'     => $sobrenome,
-                'email'         => $email,
                 'cpf'           => $cpf,
                 'rg'            => $rg,
                 'senha'         => password_hash($senha, PASSWORD_BCRYPT, ['cost' => 12]),
@@ -93,9 +92,54 @@ final class Register extends Base
                 'message' => 'Conta criada com sucesso!',
             ], 201);
         } catch (\Throwable $e) {
-            return $this->json($response, ['status' => false, 
-            'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
+            return $this->json($response, [
+                'status' => false,
+                'msg' => 'Restrição: ' . $e->getMessage(),
+                'id' => 0
+            ], 500);
         }
+    }
+
+    public function preRegister($request, $response)
+    {
+        $form = $request->getParsedBody();
+
+        #Captura os dados informado pelo usuário no formulário de pré-cadastro
+        $nome      = $form['nome'] ?? null;
+        $sobrenome = $form['sobrenome'] ?? null;
+        $cpf       = $form['cpf'] ?? null;
+        $rg        = $form['rg'] ?? null;
+        $senha     = $form['senha'] ?? null;
+        #Dados de contato.
+        $email     = $form['email'] ?? null;
+        $telefone  = $form['telefone'] ?? null;
+        #Criamos o array associativo com os dados do usuário, onde a 
+        #chave é o nome da coluna no banco de dados e o valor é o dado 
+        #informado pelo usuário.
+        $DataUser = [
+            'nome'      => $nome,
+            'sobrenome' => $sobrenome,
+            'cpf'       => $cpf,
+            'rg'        => $rg,
+            'senha'     => password_hash($senha, PASSWORD_DEFAULT)
+        ];
+        $id_usuario = 0;
+        #Insere os dados no data base com o Docrine e recebe o ID do usuário criado.
+        #?????
+        #Insere os dados do email do usuário na base.
+        $DataEmail = [
+            'id_usuario' => $id_usuario,
+            'tipo' => 'EMAIL',
+            'contato' => $email
+        ];
+        #????
+        #Insere os dados do telefone do usuário na base.
+        $DataTel = [
+            'id_usuario' => $id_usuario,
+            'tipo' => 'TELEFONE',
+            'contato' => $telefone
+        ];
+        #???
     }
 
     // ─── Validação interna ────────────────────────────────────────────────────

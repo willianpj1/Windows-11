@@ -7,3 +7,5 @@ define('ROOT', dirname(__FILE__, 3));
 define('DIR_VIEWS', ROOT . '/app/view');
 #EXTENSÃO PADRÃO DAS VIEWS
 define('EXT_VIEWS', '.html');
+#chave secreta para geração de tokens
+define('SECRET_KEY','ccc4b12d-2dee-4531-ba1c-9e9d9ffa406f');

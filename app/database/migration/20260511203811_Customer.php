@@ -7,13 +7,13 @@ namespace app\database\migration;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-final class Version20260504212215 extends AbstractMigration
+final class Version20260511203811 extends AbstractMigration
 {
     public function getDescription(): string
     {
         return 'Customer';
     }
-    
+
     public function up(Schema $schema): void
     {
         $table = $schema->createTable('customer');
