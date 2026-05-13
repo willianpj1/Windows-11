@@ -144,7 +144,49 @@ final class Login extends Base
         } catch (\Throwable $e) {
             # Qualquer outra falha inesperada: loga e responde de forma genérica
             error_log('[auth][GERAL] ' . $e->getMessage());
-            return $this->json($response, ['status' => false, 'msg' => 'Erro inesperado. Tente novamente.'. $e->getMessage(), 'id' => 0], 500);
+            return $this->json($response, ['status' => false, 'msg' => 'Erro inesperado. Tente novamente.' . $e->getMessage(), 'id' => 0], 500);
+        }
+    }
+    public function google($request, $response)
+    {
+        $form = $request->getParsedBody();
+
+        $credential = $form['credential'] ?? null;
+
+        $form_g_csrf_token = $form['g_csrf_token'] ?? null;
+
+        $cookie_g_csrf_token = $_COOKIE['g_csrf_token'] ?? null;
+
+        $google_client_id = $_ENV['GOOGLE_CLIENT_ID'] ?? null;
+
+        if (is_null($credential) || is_null($form_g_csrf_token) || is_null($cookie_g_csrf_token)) {
+            throw new \InvalidArgumentException('Credential do Google ausente');
+        }
+
+        var_dump($google_client_id);
+        $client = new \Google\Client(['client_id' => $google_client_id]);
+
+        try {
+            $payload = $client->verifyIdToken($credential);
+            # Dados do usuário extraídos do payload validado
+            $google_id   = $payload['sub'];                                                    // ID único do Google (immutable)
+            $email       = $payload['email'];
+            $given_name  = $payload['given_name']  ?? '';                                      // Nome
+            $family_name = $payload['family_name'] ?? '';                                      // Sobrenome
+            $full_name   = $payload['name']        ?? trim("{$given_name} {$family_name}");    // Nome completo (fallback)
+            $picture_url = $payload['picture']     ?? null;
+
+            #Com base no e-mail, recuperar os dados de do usuário 
+            #utilizando o seguinte script select * from vw_user where email = $email
+
+            #Se retornar dados deve ser verificado o valor do campo ativo, caso seja false,
+            # Retorne a seguinte mensagem: Por enquanto você ainda não esta autorizado, por favor aguarde...
+
+            #Caso o valor seja true criar os dados da sessão do usuário e direcionar para pagina de /home ou /adm
+
+
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('Falha na verificação do ID Token do Google: ' . $e->getMessage(), 0, $e);
         }
     }
 }

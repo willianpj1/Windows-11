@@ -295,8 +295,7 @@ final class Login extends Base
             'senha'         => password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT),
             'cpf'           => '',
             'rg'            => '',
-            'ativo'         => true,
-            'administrador' => false,
+            
         ]);
 
         return \app\database\DB::select('*')
