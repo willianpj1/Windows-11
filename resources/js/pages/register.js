@@ -4,6 +4,7 @@ import Validate from '../components/validate.js';
 // ─── Máscaras ─────────────────────────────────────────────────────────────────
 Inputmask({ mask: '999.999.999-99' }).mask('#cpf');
 Inputmask({ mask: '9999999' }).mask('#rg');
+Inputmask({ mask: '(99) 9 9999-9999' }).mask('#telefone');
 
 // ─── Toggle visibilidade de senha ─────────────────────────────────────────────
 function togglePassword(buttonId, inputId) {
@@ -40,6 +41,7 @@ $('#form').validate({
         nome: { required: true, minlength: 2 },
         sobrenome: { required: true, minlength: 2 },
         email: { required: true, email: true },
+        telefone: { required: true, telefone: true },
         cpf: { required: true, cpfValido: false },
         rg: { required: false, minlength: 5 },
         senha: { required: true, senhaForte: true },

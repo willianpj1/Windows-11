@@ -20,27 +20,41 @@ final class Register extends Base
 
     // ─── Inserção ─────────────────────────────────────────────────────────────
 
-    public function store($request, $response)
+    /*public function store($request, $response)
     {
         $form = $request->getParsedBody();
 
-        // ── 1. Validação dos campos obrigatórios ──────────────────────────────
-        /*$erros = $this->validar($form);
-        if ($erros !== []) {
-            return $this->json($response, [
-                'status'  => false,
-                'message' => implode(' ', $erros),
-            ], 422);
-        }*/
-
-        $nome      = trim($form['nome']);
-        $sobrenome = trim($form['sobrenome']);
-        $email     = strtolower(trim($form['email']));
-        $cpf       = preg_replace('/\D/', '', $form['cpf']);
-        $rg        = preg_replace('/\D/', '', $form['rg']);
-        $senha     = $form['senha'];
+        $nome      = $form['nome']      ?? null;
+        $sobrenome = $form['sobrenome'] ?? null;
+        $cpf       = $form['cpf']       ?? null;
+        $rg        = $form['rg']        ?? null;
+        $senha     = $form['senha']     ?? null;
+        $email     = $form['email']     ?? null;
+        $telefone  = $form['telefone']     ?? null;
 
 
+        if (is_null($nome) || is_null($sobrenome) || ) {
+            return $this->json($response, ['status' => false, 'msg' => 'Por favor informe os dados corretamente!', 'id' => 0], 403);
+        }
+
+        $DataUser = [
+            'nome'=>$nome,
+            'sobrenome'=>$sobrenome,
+            'cpf'=>$cpf,
+            'rg'=>$rg,
+            'senha'=>password_hash($senha,PASSWORD_DEFAULT);        
+        ];
+
+
+        #Inserir o usuário na tabela users e receber o seu código
+        $id = \app\database\DB::insert('nome da tabela do banco', []);
+
+
+        $DataEmail = [
+                'id_usuario'=>$id,
+                'tipo'=>$tipo,
+                'contato'=>$contato
+        ];
 
         // ── 2. Unicidade de e-mail e CPF ──────────────────────────────────────
         try {
@@ -98,12 +112,11 @@ final class Register extends Base
                 'id' => 0
             ], 500);
         }
-    }
+    }*/
 
     public function preRegister($request, $response)
     {
         $form = $request->getParsedBody();
-
         #Captura os dados informado pelo usuário no formulário de pré-cadastro
         $nome      = $form['nome'] ?? null;
         $sobrenome = $form['sobrenome'] ?? null;
@@ -125,21 +138,26 @@ final class Register extends Base
         ];
         $id_usuario = 0;
         #Insere os dados no data base com o Docrine e recebe o ID do usuário criado.
-        #?????
+        $id_usuario = \app\database\DB::connection()->insert('users', $DataUser);
         #Insere os dados do email do usuário na base.
         $DataEmail = [
             'id_usuario' => $id_usuario,
             'tipo' => 'EMAIL',
             'contato' => $email
         ];
-        #????
+        \app\database\DB::connection()->insert('contact', $DataEmail);
         #Insere os dados do telefone do usuário na base.
         $DataTel = [
             'id_usuario' => $id_usuario,
             'tipo' => 'TELEFONE',
             'contato' => $telefone
         ];
-        #???
+        \app\database\DB::connection()->insert('contact', $DataTel);
+        #Retorna a resposta de sucesso ao cliente
+        return $this->json($response, [
+            'status' => true,
+            'msg' => 'Usuário cadastrado com sucesso!'
+        ], 200);
     }
 
     // ─── Validação interna ────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ $app->post('/login',               app\controller\Login::class . ':authenticate'
     ->add(app\middleware\Middleware::web());
 
 $app->get('/cadastro',             app\controller\Register::class . ':register');
-$app->post('/cadastro',            app\controller\Register::class . ':store');
+$app->post('/cadastro',            app\controller\Register::class . ':preRegister');
 
 $app->get('/auth/google',          app\controller\Login::class . ':googleRedirect');
 $app->get('/auth/google/callback', app\controller\Login::class . ':googleCallback');
