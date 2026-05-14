@@ -17,6 +17,27 @@ final class Login extends Base
             var_dump($e->getMessage());
         }
     }
+    public function logout($request, $response)
+    {
+        // Destrói a sessão
+        $_SESSION = [];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+
+        // Remove o cookie JWT definindo expiração no passado
+        setcookie(self::COOKIE_NAME, '', [
+            'expires'  => time() - 3600,
+            'path'     => '/',
+            'httponly' => true,
+            'samesite' => 'Lax',
+            'secure'   => ($_ENV['APP_ENV'] ?? 'production') === 'production',
+        ]);
+
+        return $response
+            ->withHeader('Location', '/login')
+            ->withStatus(302);
+    }
     public function authenticate($request, $response)
     {
         # Recupera as credenciais enviadas no corpo da requisição
@@ -176,6 +197,12 @@ final class Login extends Base
             $full_name   = $payload['name']        ?? trim("{$given_name} {$family_name}");    // Nome completo (fallback)
             $picture_url = $payload['picture']     ?? null;
 
+            # Atividade anterior dia 14-05-2026
+
+            # 1. Finalizar o processo de autenticação 
+
+            # 2. Opção de sair do sistema onde deve ser destruído a sessão e direcionado para pagina de login novamente
+            #_________________________________________________________________________________________________________
             #Com base no e-mail, recuperar os dados de do usuário 
             #utilizando o seguinte script select * from vw_user where email = $email
 

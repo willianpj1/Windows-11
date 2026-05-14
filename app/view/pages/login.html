@@ -61,12 +61,25 @@
                         <div class="d-flex gap-2 mb-3">
                             <button type="submit" class="btn btn-primary btn-lg rounded-3 flex-fill">
                                 <i class="fa-solid fa-right-to-bracket me-2"></i>Entrar
-                            </button>
-                            <a href="/auth/google"
-                                class="btn btn-outline-secondary btn-lg rounded-3 flex-fill d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-google"></i>Google
-                            </a>
                         </div>
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-success" id="buttonLogin">
+                                Login
+                            </button>
+                            <div class="btn">
+                                <div id="g_id_onload"
+                                    data-client_id="346079394633-hd72jdjgaurl4poo0os8d1a374aojm0v.apps.googleusercontent.com"
+                                    data-context="signin" data-ux_mode="popup" data-login_uri="/authentication/google"
+                                    data-itp_support="true">
+                                </div>
+
+                                <div class="g_id_signin" data-type="standard" data-shape="rectangular"
+                                    data-theme="outline" data-text="signin_with" data-size="large"
+                                    data-logo_alignment="left">
+                                </div>
+                            </div>
+                        </div>
+
                     </form>
 
                     <hr class="my-3 text-muted">
