@@ -9,13 +9,15 @@ $app->get('/login',                app\controller\Login::class . ':login')
 $app->post('/login',               app\controller\Login::class . ':authenticate')
     ->add(app\middleware\Middleware::web());
 
+$app->post('/cadastro',             app\controller\Register::class . ':preRegister');
 $app->get('/cadastro',             app\controller\Register::class . ':register');
-$app->post('/cadastro',            app\controller\Register::class . ':preRegister');
 
-$app->get('/auth/google',          app\controller\Login::class . ':googleRedirect');
-$app->get('/auth/google/callback', app\controller\Login::class . ':googleCallback');
-$app->get('/logout',               app\controller\Login::class . ':logout');
-
+$app->group('/authentication', function (Slim\Routing\RouteCollectorProxy $group) {
+    $group->get('/logout', app\controller\Login::class . ':logout');
+    $group->post('/google', app\controller\Login::class . ':google');
+    $group->post('/authenticate', app\controller\Login::class . ':authenticate');
+    $group->post('/preregister', app\controller\Login::class . ':preRegister');
+});
 // ─── Protegidas ───────────────────────────────────────────────────────────────
 $app->get('/',     app\controller\Home::class . ':home')->add(app\middleware\Middleware::web());
 $app->get('/home', app\controller\Home::class . ':home')->add(app\middleware\Middleware::web());
