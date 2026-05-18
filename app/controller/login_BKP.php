@@ -66,7 +66,6 @@ final class Login extends Base
             }
 
             return $this->issueSession($response, $user);
-
         } catch (\Throwable $e) {
             return $this->json($response, [
                 'status'  => false,
@@ -135,7 +134,7 @@ final class Login extends Base
             $googleId = $payload['sub'];
             $email    = $payload['email']      ?? '';
             $nome     = $payload['given_name'] ?? ($payload['name'] ?? 'Usuário');
-            $sobrenome= $payload['family_name'] ?? '';
+            $sobrenome = $payload['family_name'] ?? '';
 
             // Busca ou cria o usuário
             $user = $this->findOrCreateGoogleUser($googleId, $email, $nome, $sobrenome);
@@ -156,7 +155,6 @@ final class Login extends Base
             return $response
                 ->withHeader('Location', '/home')
                 ->withStatus(302);
-
         } catch (\Throwable $e) {
             return $response
                 ->withHeader('Location', '/login?erro=falha_google')
@@ -295,7 +293,7 @@ final class Login extends Base
             'senha'         => password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT),
             'cpf'           => '',
             'rg'            => '',
-            
+
         ]);
 
         return \app\database\DB::select('*')
