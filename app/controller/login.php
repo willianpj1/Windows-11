@@ -34,7 +34,7 @@ final class Login extends Base
         return $response
             ->withHeader('Location', '/login')
             ->withStatus(302);
-    }    
+    }
     public function google($request, $response)
     {
         $form = $request->getParsedBody();
@@ -277,5 +277,130 @@ final class Login extends Base
             error_log('[auth][GERAL] ' . $e->getMessage());
             return $this->json($response, ['status' => false, 'msg' => 'Erro inesperado. Tente novamente.' . $e->getMessage(), 'id' => 0], 500);
         }
-    }   
+    }
+    
+
+    public function googleOneTap($request, $response)
+    {
+        $form       = $request->getParsedBody();
+        $credential = $form['credential'] ?? '';
+
+        if ($credential === '') {
+            return $response->withHeader('Location', '/login?erro=credencial_ausente')->withStatus(302);
+        }
+
+        try {
+            $payload = $this->verifyGoogleIdToken($credential);
+
+            $user = $this->findOrCreateGoogleUser(
+                $payload['sub'],
+                $payload['email']       ?? '',
+                $payload['given_name']  ?? ($payload['name'] ?? 'Usuário'),
+                $payload['family_name'] ?? ''
+            );
+
+            if (!(bool) $user['ativo']) {
+                return $response->withHeader('Location', '/login?erro=usuario_inativo')->withStatus(302);
+            }
+
+            $this->buildCookie($user);
+            $this->buildSession($user);
+
+            return $response->withHeader('Location', '/home')->withStatus(302);
+        } catch (\Throwable $e) {
+            error_log('[Login::googleOneTap] ' . $e->getMessage());
+            return $response->withHeader('Location', '/login?erro=falha_google')->withStatus(302);
+        }
+    }
+    private function findOrCreateGoogleUser(string $googleId, string $email, string $nome, string $sobrenome): array
+    {
+        $conn = \app\database\DB::connection();
+
+        // Busca por google_id
+        $user = \app\database\DB::select('*')->from('users')
+            ->where('google_id = ' . $conn->quote($googleId))
+            ->fetchAssociative();
+
+        if ($user) return $user;
+
+        // Busca por e-mail e vincula o google_id
+        if ($email !== '') {
+            $user = \app\database\DB::select('*')->from('users')
+                ->where('email = ' . $conn->quote($email))
+                ->fetchAssociative();
+
+            if ($user) {
+                $conn->update('users', ['google_id' => $googleId], ['id' => $user['id']]);
+                return $user;
+            }
+        }
+
+        // Cria novo usuário — booleanos como inteiros para compatibilidade com PostgreSQL via DBAL
+        $conn->insert('users', [
+            'nome'          => $nome,
+            'sobrenome'     => $sobrenome,
+            'email'         => $email,
+            'google_id'     => $googleId,
+            'senha'         => password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT),
+            'cpf'           => '',
+            'rg'            => '',
+            'ativo'         => 1,
+            'administrador' => 0,
+        ]);
+
+        return \app\database\DB::select('*')->from('users')
+            ->where('google_id = ' . $conn->quote($googleId))
+            ->fetchAssociative();
+    }
+    private function verifyGoogleIdToken(string $idToken): array
+    {
+        $url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($idToken);
+        $res = @file_get_contents($url);
+
+        if (!$res) {
+            throw new \RuntimeException('Falha ao comunicar com a API do Google');
+        }
+
+        $payload = json_decode($res, true);
+
+        if (($payload['aud'] ?? '') !== $_ENV['GOOGLE_CLIENT_ID']) {
+            throw new \RuntimeException('Token inválido: audience não confere');
+        }
+
+        return $payload;
+    }
+    private function buildCookie(array $user): void
+    {
+        $now     = time();
+        $payload = [
+            'iss' => $_ENV['APP_URL'],
+            'sub' => (int) $user['id'],
+            'iat' => $now,
+            'exp' => $now + self::JWT_EXPIRY,
+        ];
+
+        $token = JWT::encode($payload, $_ENV['JWT_SECRET'], 'HS256');
+
+        setcookie(self::COOKIE_NAME, $token, [
+            'expires'  => $now + self::JWT_EXPIRY,
+            'path'     => '/',
+            'httponly' => true,
+            'samesite' => 'Lax',
+            'secure'   => ($_ENV['APP_ENV'] ?? 'production') === 'production',
+        ]);
+    }
+    private function buildSession(array $user): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        session_regenerate_id(true);
+
+        $_SESSION['user'] = [
+            'logado' => true,
+            'id'     => (int) $user['id'],
+            'nome'   => $user['nome'] ?? '',
+        ];
+    }    
 }
