@@ -26,7 +26,7 @@ final class Register extends Base
         $sobrenome = $form['sobrenome'] ?? null;
         $cpf       = $form['cpf']       ?? null;
         $rg        = $form['rg']        ?? null;
-        $senha     = $form['senha']  ?? null;
+        $senha     = $form['senha']     ?? null;
         $email     = $form['email']     ?? null;
         $telefone  = $form['telefone']  ?? null;
 

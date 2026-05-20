@@ -279,7 +279,7 @@ final class Login extends Base
         }
     }
     
-
+    /*
     public function googleOneTap($request, $response)
     {
         $form       = $request->getParsedBody();
@@ -402,5 +402,5 @@ final class Login extends Base
             'id'     => (int) $user['id'],
             'nome'   => $user['nome'] ?? '',
         ];
-    }    
+    }  */  
 }

@@ -52,7 +52,8 @@ export default defineConfig(({ command }) => ({
                 // Entries por página
                 'pages/customer': resolve(__dirname, 'resources/js/pages/customer.js'),
                 'pages/list-customer': resolve(__dirname, 'resources/js/pages/list-customer.js'),
-                'pages/register': resolve(__dirname, 'resources/js/pages/register.js')
+                'pages/register': resolve(__dirname, 'resources/js/pages/register.js'),
+                'pages/login': resolve(__dirname, 'resources/js/pages/login.js'),
             },
             output: {
                 entryFileNames: '[name]-[hash].js',

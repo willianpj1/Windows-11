@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace app\controller;
 
+use Doctrine\DBAL\ParameterType;
+use Mockery\Generator\Parameter;
+
 final class Customer extends Base
 {
     public function list($request, $response)
@@ -50,8 +53,9 @@ final class Customer extends Base
             'nascimento_fundacao' => $this->convertBrDateToDatabaseFormat($form['dataRegistro']),
             'ativo' => ($form['ativo'] === 'true') ? true : false
         ];
+
         try {
-            $IsInserted = \app\database\DB::connection()->insert('customer', $FieldsAndValues);
+            $IsInserted = \app\database\DB::connection()->insert('customer', $FieldsAndValues, ['ativo' => ParameterType::BOOLEAN]);
             if (!$IsInserted) {
                 return $this->json($response, ['status' => false, 'msg' => 'Restrição: ' . $IsInserted, 'id' => 0], 500);
             }
@@ -106,7 +110,7 @@ final class Customer extends Base
             return $this->json($response, ['status' => false, 'msg' => 'Restrição: ' . $e->getMessage(), 'id' => 0], 500);
         }
     }
-    
+
     public function listingdata($request, $response)
     {
         $form = $request->getParsedBody();
