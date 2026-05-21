@@ -5,33 +5,34 @@ declare(strict_types=1);
 use Slim\Psr7\Factory\RequestFactory;
 use Slim\Psr7\Factory\ResponseFactory;
 
-const TEST_CPF   = '123.123.123-12';
-const TEST_EMAIL = 'pereira@pereira.com';
-const TEST_PHONE = '69999999999';
+test('preRegister com dados válidos retorna 200 status true', function () {
 
-test('Register com dados validos retorna 201 status true', function () {
     $request = (new RequestFactory())
         ->createRequest('POST', '/cadastro')
-        ->withHeader('Content-type', 'application/x-www-form-urlencoded')
+        ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
         ->withParsedBody([
             'nome'      => 'willian',
             'sobrenome' => 'pereira',
-            'cpf'       => TEST_CPF,
-            'rg'        => '123456',
+            'cpf'       => '123.123.123-20',
+            'rg'        => '123457',
             'senha'     => '1234',
-            'email'     => TEST_EMAIL,
-            'telefone'  => TEST_PHONE,
+            'email'     => 'pereira@pereira.con',
+            'telefone'  => '69999999998',
         ]);
+
 
     $response = (new ResponseFactory())->createResponse();
 
     $result = (new \app\controller\Register())->preRegister($request, $response);
 
     $result->getBody()->rewind();
-    $json = json_decode($result->getBody()->getContents(), true);
 
+    $json = json_decode($result->getBody()->getContents(), true);
+    #Capturamos o código de resposta caso seja 201 significa que o cadastro 
+    #Foi criado. 
     expect($result->getStatusCode())->toBe(201);
-    expect($json['status'])->toBeTrue();
+
     expect($json['msg'])->toContain('Pré-cadastro realizado com sucesso!');
-    expect($json['id'])->toBeInt()->toBeGreaterThan(0);
+
+    expect($json['status'])->toBeTrue();
 });

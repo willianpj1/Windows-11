@@ -17,6 +17,7 @@ final class Register extends Base
             ->withHeader('Content-Type', 'text/html')
             ->withStatus(200);
     }
+    
     public function preRegister($request, $response)
     {
         $form = $request->getParsedBody();
@@ -98,5 +99,5 @@ final class Register extends Base
                 'id'     => 0,
             ], 500);
         }
-    }    
+    }
 }

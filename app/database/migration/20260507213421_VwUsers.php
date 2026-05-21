@@ -7,18 +7,18 @@ namespace app\database\migration;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-final class Version20260511203927 extends AbstractMigration
+final class Version20260507171344 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'vw_users';
+        return 'VwUsers';
     }
 
     public function up(Schema $schema): void
     {
         #Cria ou substitui a view de leitura com pivot dos contatos por tipo (idempotente).
         $this->addSql(<<<'SQL'
-            CREATE OR REPLACE VIEW vw_users AS
+            CREATE OR REPLACE VIEW vw_user AS
             SELECT
                 u.id,
                 u.nome,
@@ -33,8 +33,8 @@ final class Version20260511203927 extends AbstractMigration
                 MAX(c.contato) FILTER (WHERE c.tipo = 'TELEFONE') AS telefone,
                 u.criado_em,
                 u.atualizado_em
-            FROM users u
-            LEFT JOIN contact c
+            FROM public.users u
+            LEFT JOIN public.contact c
                    ON c.id_usuario = u.id
             GROUP BY
                 u.id,

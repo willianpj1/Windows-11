@@ -5,16 +5,16 @@ declare(strict_types=1);
 use Slim\Psr7\Factory\RequestFactory;
 use Slim\Psr7\Factory\ResponseFactory;
 
-test('Register com dados validos retorna 200 status true', function () {
+test('Insert com dados validos retorna 201 status true', function () {
     $request = (new RequestFactory())
         ->createRequest('POST', '/cliente/insert')
         ->withHeader('Content-type', 'application/x-www-form-urlencoded')
         ->withParsedBody([
-            'nome_fantasia' => 'willian',
-            'sobrenome_razao' => 'pereira',
-            'cpf_cnpj' => '123.123.123-12',
-            'inscricao_estadual' => '123456',
-            'nascimento_fundacao' => '12/12/2012',
+            'nomeExibicao' => 'willian',
+            'nomeLegal' => 'pereira',
+            'numeroDocumento' => '123.123.123-12',
+            'registroSecundario' => '123456',
+            'dataRegistro' => '12/12/2012',
             'ativo' => 'true',
         ]);
 
@@ -24,11 +24,12 @@ test('Register com dados validos retorna 200 status true', function () {
 
     $result->getBody()->rewind();
 
-    $json = json_decode($result->getbody()->getContents(), true);
-    #Capturamos o codigo de resposta caso seja 201 significa que foi criado
+    $json = json_decode($result->getBody()->getContents(), true);
+    #Capturamos o código de resposta caso seja 201 significa que o cadastro 
+    #Foi criado. 
     expect($result->getStatusCode())->toBe(201);
 
-    expect($json['status'])->toBeTrue();
-
     expect($json['msg'])->toContain('Salvo com sucesso!');
+
+    expect($json['status'])->toBeTrue();
 });
