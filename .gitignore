@@ -26,3 +26,5 @@ dist-ssr
 /docker/redis/storage
 /public
 *.lock
+*.rdb
+/docker/redis
